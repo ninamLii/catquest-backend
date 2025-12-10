@@ -1,4 +1,7 @@
 import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
+import catsRouter from "./routes/cats.routes.js";
 
 const app = express();
 
@@ -6,6 +9,8 @@ const app = express();
 app.get("/api/health", (_, res) => {
   res.json({ status: "ok dude" });
 });
+
+app.use("/cats", catsRouter);
 
 // Start the server and listen on port 3000
 app.listen(3000, () => {
