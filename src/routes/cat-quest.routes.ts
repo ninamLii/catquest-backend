@@ -7,6 +7,7 @@ const router = Router();
 function countDifferences(cat: any, answers: WizardResult): number {
   let differences = 0;
   const keysOfAnswers = Object.keys(answers) as (keyof WizardResult)[];
+  // usefull for debugging
   const differencesLog: string[] = [];
 
   for (const key of keysOfAnswers) {
@@ -20,7 +21,6 @@ function countDifferences(cat: any, answers: WizardResult): number {
         if (answers.welfare === 0) continue;
         const catLifeSpanSplit = cat.life_span.split(" - ");
         const catMinLifeSpan = parseInt(catLifeSpanSplit[0]);
-        console.log(catMinLifeSpan);
         let shortlegs = 1;
         let suppresedTail = 1;
         let maxHealthIssues = 5;
@@ -65,10 +65,10 @@ function countDifferences(cat: any, answers: WizardResult): number {
           differencesLog.push("activityLevel");
         }
         break;
-      case "indoorsOnly":
-        if (answers.indoorsOnly === 1 && cat.indoors !== 1) {
+      case "garden":
+        if (answers.garden === 0 && cat.indoors !== 1) {
           differences++;
-          differencesLog.push("indoorsOnly");
+          differencesLog.push("garden");
         }
         break;
       case "familyFriendly":
@@ -79,7 +79,7 @@ function countDifferences(cat: any, answers: WizardResult): number {
 
         break;
       case "dogFriendly":
-        if (cat.dog_friendly !== answers.dogFriendly) {
+        if (cat.dog_friendly === 0 && answers.dogFriendly == 1) {
           differences++;
           differencesLog.push("dogFriendly");
         }

@@ -3,7 +3,7 @@ export type WizardResult = {
   welfare: number;
   socialNeeds: number;
   activityLevel: number;
-  indoorsOnly: number;
+  garden: number;
   familyFriendly: number;
   dogFriendly: number;
   affectionate: number;
