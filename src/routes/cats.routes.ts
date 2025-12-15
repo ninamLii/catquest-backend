@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { mapCat } from "../helper/mapCats";
 
 const router = Router();
 
@@ -27,23 +28,7 @@ router.get("/", async (req, res) => {
     const start = (page - 1) * limit;
     const paginated = data.slice(start, start + limit);
 
-    const mapped = paginated.map((cat: any) => ({
-      id: cat.id,
-      image: cat.image?.url || null,
-      name: cat.name,
-      description: cat.description,
-      weight: cat.weight.metric,
-      life_span: cat.life_span,
-      sheeding: cat.shedding_level,
-      child_friendly: cat.child_friendly,
-      stranger_friendly: cat.stranger_friendly,
-      dog_friendly: cat.dog_friendly,
-      playfulness: cat.energy_level,
-      intelligence: cat.intelligence,
-      temperament: cat.temperament,
-      indoors: cat.indoor,
-      grooming: cat.grooming,
-    }));
+    const mapped = paginated.map((cat: any) => mapCat(cat));
     return res.json({
       page,
       limit,
@@ -89,28 +74,47 @@ router.get("/favourites", async (req, res) => {
 
     const filtered = data.filter((cat: any) => ids.includes(cat.id));
     const paginated = filtered.slice(start, start + limit);
-    const mapped = paginated.map((cat: any) => ({
-      id: cat.id,
-      image: cat.image?.url || null,
-      name: cat.name,
-      description: cat.description,
-      weight: cat.weight.metric,
-      life_span: cat.life_span,
-      sheeding: cat.shedding_level,
-      child_friendly: cat.child_friendly,
-      stranger_friendly: cat.stranger_friendly,
-      dog_friendly: cat.dog_friendly,
-      playfulness: cat.energy_level,
-      intelligence: cat.intelligence,
-      temperament: cat.temperament,
-      indoors: cat.indoor,
-      grooming: cat.grooming,
-    }));
+    const mapped = paginated.map((cat: any) => mapCat(cat));
     return res.json({ page, limit, total, totalPages, cats: mapped });
   } catch (error) {
     return res
       .status(500)
       .json({ error: "Error occurred while fetching cat data." });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!process.env.CAT_API_KEY) {
+    return res.status(500).json({ error: "No API KEY provided" });
+  }
+  try {
+    const response = await fetch(`http://api.thecatapi.com/v1/breeds`, {
+      headers: {
+        "x-api-key": process.env.CAT_API_KEY,
+      },
+    });
+    if (!response.ok) {
+      return res
+        .status(response.status)
+        .json({ error: "Something went wrong with the API request." });
+    }
+    const cats = await response.json();
+    const cat = cats.find((c: any) => c.id === id);
+    if (!cat) {
+      return res.status(404).json({ error: "Cat not found" });
+    }
+    const mappedCat = mapCat(cat);
+    return res.json({
+      id: mappedCat.id,
+      informations: mappedCat,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: "Error occurred while fetching cat data.",
+      details: error.message,
+    });
   }
 });
 
