@@ -21,7 +21,34 @@ router.get("/", async (req, res) => {
         .status(response.status)
         .json({ error: "Something went wrong with the API request." });
     }
-    const data = await response.json();
+    let data = await response.json();
+
+    // Apply filters based on query parameters
+
+    if (req.query.indoors === "true") {
+      data = data.filter((c: any) => c.indoor === 1);
+    }
+
+    if (req.query.hypoallergenic === "true") {
+      data = data.filter((c: any) => c.hypoallergenic === 1);
+    }
+
+    if (req.query.social_needs) {
+      data = data.filter(
+        (c: any) => c.social_needs >= Number(req.query.social_needs)
+      );
+    }
+    if (req.query.activity_level) {
+      data = data.filter(
+        (c: any) => c.energy_level >= Number(req.query.activity_level)
+      );
+    }
+    if (req.query.child_friendly) {
+      data = data.filter(
+        (c: any) => c.child_friendly >= Number(req.query.child_friendly)
+      );
+    }
+
     const total = data.length;
     const totalPages = Math.ceil(total / limit);
 
